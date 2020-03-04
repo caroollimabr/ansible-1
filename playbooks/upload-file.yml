@@ -1,11 +1,11 @@
 ---
 - name: Upload Simple File
-  hosts: all
+  hosts: localhost # REPLACE DE DEVELOPMENT PARA PRODUCTION: mudar de all para localhost
   become: yes
   gather_facts: yes
   vars:
-    file_src: teste.txt
-    file_dest: /usr/src
+    file_src: config.json
+    file_dest: /usr/src # file destination
     owner: root
     group: root
     mode: 0777
@@ -19,11 +19,20 @@
         mode: "{{mode}}"
       register: upload_file
 
-    - name: alterando conteudo arquivo
-      blockinfile:
-        path: '{{file_dest}}/{{file_src}}'
-        insertafter: ''
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        content: |
-          conteudo edidato pelo ansible
+    - name: Troca texto
+      replace:
+        # https://docs.ansible.com/ansible/latest/modules/replace_module.html - expressões vêm daqui
+        path: "{{file_dest}}/{{file_src}}" # vars
+        backup: true
+        regexp: "development"
+        replace: "production"
       when: upload_file is success
+
+    # - name: alterando conteudo arquivo
+      # blockinfile:
+        # path: '{{file_dest}}/{{file_src}}'
+        # insertafter: ''
+        # marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        # content: |
+          # conteudo edidato pelo ansible
+      # when: upload_file is success
